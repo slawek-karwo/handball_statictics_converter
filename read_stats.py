@@ -87,13 +87,130 @@ class ReportReader:
         self.df_data = self.df_data.apply(lambda x: x.str.replace('--', 'nan'))
         self.df_data = self.df_data.astype(float)
 
-    def tranform_data(self):
+    def transform_data(self):
+        """
+        Add column and calculations to get the output (see constant.py)
+        :return:
+        """
+        # Add column to differ goalkeepers
         self.df_data.loc[pd.isna(self.df_data[55]), 'Player_Position'] = 'PL'
         self.df_data.loc[pd.isna(self.df_data['Player_Position']), 'Player_Position'] = 'GK'
+
+        # p1 column 8 + 9 + 10 + 11 + 12 + 17
+        self.df_data['p1'] = \
+            self.df_data[8] + self.df_data[9] + self.df_data[10] + self.df_data[11] + self.df_data[12] + \
+            self.df_data[17]
+
+        # p2 column 18 + 19 + 20 + 21 + 22 + 27
+        self.df_data['p2'] = \
+            self.df_data[18] + self.df_data[19] + self.df_data[20] + self.df_data[21] + self.df_data[22] + \
+            self.df_data[27]
+
+        # s1 column 13 + 14 + 15
+        self.df_data['s1'] = self.df_data[13] + self.df_data[14] + self.df_data[15]
+
+        # s2 column 23 + 24 + 25
+        self.df_data['s2'] = self.df_data[23] + self.df_data[24] + self.df_data[25]
+
+        # k1 column 16
+        self.df_data['k1'] = self.df_data[16]
+
+        # k2 column 26
+        self.df_data['k2'] = self.df_data[26]
+
+        # k2 gk column 30
+        self.df_data['k2gk'] = self.df_data[30]
+
+        # b1 column 35 + 36 + 37 + 38 + 39
+        self.df_data['b1'] = \
+            self.df_data[35] + self.df_data[36] + self.df_data[37] + self.df_data[38] + self.df_data[39]
+
+        # b2 column 40
+        self.df_data['b2'] = self.df_data[40]
+
+        # g1 column 2
+        self.df_data['g1'] = self.df_data[6]
+
+        # g2 column 3
+        self.df_data['g2'] = self.df_data[7]
+
+        # r column 29
+        self.df_data['r'] = self.df_data[29]
+
+        # c1 column 46
+        self.df_data['c1'] = self.df_data[46]
+
+        # ANu p1 + p2 + s1 + s2 + k1 + k2 + b1 + b2
+        self.df_data['ANu'] = \
+            self.df_data['p1'] + self.df_data['p2'] + self.df_data['s1'] + self.df_data['s2'] + self.df_data['k1'] + \
+            self.df_data['k2'] + self.df_data['b1'] + self.df_data['b2']
+
+        # PAt_l (left) p1 + p2
+        self.df_data['PAt_l'] = self.df_data['p1'] + self.df_data['p2']
+
+        # PAt_r (right) p1
+        self.df_data['PAt_r'] = self.df_data['p1']
+
+        # PAt - string PAt_l "/" PAt_r
+        self.df_data['PAt'] = self.df_data.apply(lambda x: (str(x.PAt_l) + "/" + str(x.PAt_r)), axis=1)
+
+        # FAt_l (left) s1 + s2
+        self.df_data['FAt_l'] = self.df_data['s1'] + self.df_data['s2']
+
+        # FAt_r (right) s1
+        self.df_data['FAt_r'] = self.df_data['s1']
+
+        # FAt - string FAt_l "/" FAt_r
+        self.df_data['FAt'] = self.df_data.apply(lambda x: (str(x.FAt_l) + "/" + str(x.FAt_r)), axis=1)
+
+        # Psh_l (left) k1 + k2
+        self.df_data['Psh_l'] = self.df_data['k1'] + self.df_data['k2']
+
+        # PSh_r (right) k1
+        self.df_data['PSh_r'] = self.df_data['k1']
+
+        # PSh - string Psh_l "/" PSh_r
+        self.df_data['PSh'] = self.df_data.apply(lambda x: (str(x.Psh_l) + "/" + str(x.PSh_r)), axis=1)
+
+        # Err_l (left) b1 + b2
+        self.df_data['Err_l'] = self.df_data['b1'] + self.df_data['b2']
+
+        # Err_r (right) b2
+        self.df_data['Err_r'] = self.df_data['b2']
+
+        # Err - string Err_l "/" Err_r
+        self.df_data['Err'] = self.df_data.apply(lambda x: (str(x.Err_l) + "/" + str(x.Err_r)), axis=1)
+
+        # Go p1 + s1 + k1
+        self.df_data['Go'] = self.df_data['p1'] + self.df_data['s1'] + self.df_data['k1']
+
+        # Gk_l (left) g1 - g2
+        self.df_data['Gk_l'] = self.df_data['g1'] - self.df_data['g2']
+
+        # Gk_r (right) k2
+        self.df_data['Gk_r'] = self.df_data['k2gk']
+
+        # Gk - string Gk_l "/" Gk_r
+        self.df_data['Gk'] = self.df_data.apply(lambda x: (str(x.Gk_l) + "/" + str(x.Gk_r)), axis=1)
+
+        # PShCr r
+        self.df_data['PShCr'] = self.df_data['r']
+
+        # Pen c1
+        self.df_data['Pen'] = self.df_data['c1']
+
+        # EffTot - string Go "/" ANu
+        self.df_data['EffTot'] = self.df_data.apply(lambda x: (str(x.Go) + "/" + str(x.ANu)), axis=1)
+        self.df_data['EffTot%'] = self.df_data['Go'].divide(self.df_data['ANu']) * 100
+
+    def format_data(self):
+        self.df_data = self.df_data[self.df_data['Player_Position'] == 'GK']
 
 
 if __name__ == '__main__':
     r = ReportReader()
     f = r.read_software_report('Politechnika.pdf')
     r.convert_to_df(f)
+    r.transform_data()
+    print(r.df_data)
     r.df_data.to_excel('test.xlsx')
