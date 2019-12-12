@@ -203,14 +203,21 @@ class ReportReader:
         self.df_data['EffTot'] = self.df_data.apply(lambda x: (str(x.Go) + "/" + str(x.ANu)), axis=1)
         self.df_data['EffTot%'] = self.df_data['Go'].divide(self.df_data['ANu']) * 100
 
-    def format_data(self):
-        self.df_data = self.df_data[self.df_data['Player_Position'] == 'GK']
+        # EffTotGk - string Go "/" ANu
+        self.df_data['EffTot%Gk_l'] = self.df_data['Gk_l']
+        self.df_data['EffTot%Gk'] = self.df_data['EffTot%Gk_l'].divide(self.df_data['g1']) * 100
 
+    def format_data(self):
+        self.df_data.loc[self.df_data['Player_Position'] == 'GK', ['ANu', 'PAt', 'FAt', 'PSh', 'Err', 'Go', 'PShCr',
+                                                                   'EffTot', 'EffTot%']] = np.nan
+        self.df_data.loc[self.df_data['Player_Position'] == 'PL', ['Gk', 'EffTot%Gk']] = np.nan
+        # format columns (to integers) and float to 2 decimals + export + gui
 
 if __name__ == '__main__':
     r = ReportReader()
     f = r.read_software_report('Politechnika.pdf')
     r.convert_to_df(f)
     r.transform_data()
+    r.format_data()
     print(r.df_data)
     r.df_data.to_excel('test.xlsx')
