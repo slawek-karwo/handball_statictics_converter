@@ -7,6 +7,7 @@ import numpy as np
 class ReportReader:
     """Class to read raw report which is the output from the software (pdf)"""
     df_data = None
+    df_data_raw = None
 
     def read_software_report(self, pdf_document):
         """
@@ -152,7 +153,7 @@ class ReportReader:
         self.df_data['PAt_r'] = self.df_data['p1']
 
         # PAt - string PAt_l "/" PAt_r
-        self.df_data['PAt'] = self.df_data.apply(lambda x: (str(x.PAt_l) + "/" + str(x.PAt_r)), axis=1)
+        self.df_data['PAt'] = self.df_data[self.df_data.notnull()].apply(lambda x: (str(int(x.PAt_l)) + "/" + str(int(x.PAt_r))) if(np.all(pd.notnull(x.PAt_l))) else None, axis=1)
 
         # FAt_l (left) s1 + s2
         self.df_data['FAt_l'] = self.df_data['s1'] + self.df_data['s2']
@@ -161,7 +162,7 @@ class ReportReader:
         self.df_data['FAt_r'] = self.df_data['s1']
 
         # FAt - string FAt_l "/" FAt_r
-        self.df_data['FAt'] = self.df_data.apply(lambda x: (str(x.FAt_l) + "/" + str(x.FAt_r)), axis=1)
+        self.df_data['FAt'] = self.df_data.apply(lambda x: (str(int(x.FAt_l)) + "/" + str(int(x.FAt_r))) if(np.all(pd.notnull(x.FAt_r))) else None, axis=1)
 
         # Psh_l (left) k1 + k2
         self.df_data['Psh_l'] = self.df_data['k1'] + self.df_data['k2']
@@ -170,7 +171,7 @@ class ReportReader:
         self.df_data['PSh_r'] = self.df_data['k1']
 
         # PSh - string Psh_l "/" PSh_r
-        self.df_data['PSh'] = self.df_data.apply(lambda x: (str(x.Psh_l) + "/" + str(x.PSh_r)), axis=1)
+        self.df_data['PSh'] = self.df_data.apply(lambda x: (str(int(x.Psh_l)) + "/" + str(int(x.PSh_r))) if(np.all(pd.notnull(x.Psh_l))) else None, axis=1)
 
         # Err_l (left) b1 + b2
         self.df_data['Err_l'] = self.df_data['b1'] + self.df_data['b2']
@@ -179,7 +180,7 @@ class ReportReader:
         self.df_data['Err_r'] = self.df_data['b2']
 
         # Err - string Err_l "/" Err_r
-        self.df_data['Err'] = self.df_data.apply(lambda x: (str(x.Err_l) + "/" + str(x.Err_r)), axis=1)
+        self.df_data['Err'] = self.df_data.apply(lambda x: (str(int(x.Err_l)) + "/" + str(int(x.Err_r))) if(np.all(pd.notnull(x.Err_l))) else None, axis=1)
 
         # Go p1 + s1 + k1
         self.df_data['Go'] = self.df_data['p1'] + self.df_data['s1'] + self.df_data['k1']
@@ -191,7 +192,7 @@ class ReportReader:
         self.df_data['Gk_r'] = self.df_data['k2gk']
 
         # Gk - string Gk_l "/" Gk_r
-        self.df_data['Gk'] = self.df_data.apply(lambda x: (str(x.Gk_l) + "/" + str(x.Gk_r)), axis=1)
+        self.df_data['Gk'] = self.df_data.apply(lambda x: (str(int(x.Gk_l)) + "/" + str(int(x.Gk_r))) if(np.all(pd.notnull(x.Gk_l))) else None, axis=1)
 
         # PShCr r
         self.df_data['PShCr'] = self.df_data['r']
@@ -200,18 +201,23 @@ class ReportReader:
         self.df_data['Pen'] = self.df_data['c1']
 
         # EffTot - string Go "/" ANu
-        self.df_data['EffTot'] = self.df_data.apply(lambda x: (str(x.Go) + "/" + str(x.ANu)), axis=1)
-        self.df_data['EffTot%'] = self.df_data['Go'].divide(self.df_data['ANu']) * 100
+        self.df_data['EffTot'] = self.df_data.apply(lambda x: (str(int(x.Go)) + "/" + str(int(x.ANu))) if(np.all(pd.notnull(x.Go))) else None, axis=1)
+        self.df_data['EffTot%'] = round(self.df_data['Go'].divide(self.df_data['ANu']) * 100, 2)
 
         # EffTotGk - string Go "/" ANu
         self.df_data['EffTot%Gk_l'] = self.df_data['Gk_l']
-        self.df_data['EffTot%Gk'] = self.df_data['EffTot%Gk_l'].divide(self.df_data['g1']) * 100
+        self.df_data['EffTot%Gk'] = round(self.df_data['EffTot%Gk_l'].divide(self.df_data['g1']) * 100, 2)
 
     def format_data(self):
         self.df_data.loc[self.df_data['Player_Position'] == 'GK', ['ANu', 'PAt', 'FAt', 'PSh', 'Err', 'Go', 'PShCr',
                                                                    'EffTot', 'EffTot%']] = np.nan
         self.df_data.loc[self.df_data['Player_Position'] == 'PL', ['Gk', 'EffTot%Gk']] = np.nan
-        # format columns (to integers) and float to 2 decimals + export + gui
+        # export + gui
+        self.df_data['Zawodnik'] = self.df_data.index
+        self.df_data_raw = self.df_data
+        self.df_data = self.df_data[['Zawodnik', 'ANu', 'PAt', 'FAt', 'PSh', 'Err', 'Go', 'Gk', 'Pen', 'PShCr', 'EffTot%', 'EffTot%Gk']]
+
+
 
 if __name__ == '__main__':
     r = ReportReader()
@@ -220,4 +226,4 @@ if __name__ == '__main__':
     r.transform_data()
     r.format_data()
     print(r.df_data)
-    r.df_data.to_excel('test.xlsx')
+    r.df_data.to_excel('test.xlsx', index=False)
