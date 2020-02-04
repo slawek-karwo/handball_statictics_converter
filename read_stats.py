@@ -2,6 +2,9 @@ import PyPDF2
 import re
 import pandas as pd
 import numpy as np
+import tkinter as tk
+from tkinter.filedialog import askopenfilename, askdirectory
+import os
 
 
 class ReportReader:
@@ -20,7 +23,7 @@ class ReportReader:
         page_content = page.extractText()
         data_list = page_content.splitlines()
         # print(data_list)
-        title = data_list[1]
+        # title = data_list[1]
         data_list = data_list[2:]
         # print(data_list)
         # print(title)
@@ -218,12 +221,17 @@ class ReportReader:
         self.df_data = self.df_data[['Zawodnik', 'ANu', 'PAt', 'FAt', 'PSh', 'Err', 'Go', 'Gk', 'Pen', 'PShCr', 'EffTot%', 'EffTot%Gk']]
 
 
-
 if __name__ == '__main__':
+    root = tk.Tk()
+    root.withdraw()
+    file_name = askopenfilename(title="Select pdf file with stats", filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
     r = ReportReader()
-    f = r.read_software_report('Politechnika.pdf')
+    f = r.read_software_report(file_name)
     r.convert_to_df(f)
     r.transform_data()
     r.format_data()
     print(r.df_data)
-    r.df_data.to_excel('test.xlsx', index=False)
+    path_to_save = askdirectory(title="Choose folder to save the result")
+    r.df_data.to_excel(os.path.join(path_to_save, 'Statystyki.xlsx'), index=False)
+    root.deiconify()
+    root.destroy()
