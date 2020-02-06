@@ -82,7 +82,7 @@ class ReportReader:
         # print(stats_dict)
         # for key, value in stats_dict.items():
         #     print(len(stats_dict[key]))
-        print(stats_dict)
+        # print(stats_dict)
         return stats_dict
 
     def convert_to_df(self, dict_data):
