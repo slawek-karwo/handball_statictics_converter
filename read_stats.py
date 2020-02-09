@@ -216,9 +216,9 @@ class ReportReader:
                                                                    'EffTot', 'EffTot%']] = np.nan
         self.df_data.loc[self.df_data['Player_Position'] == 'PL', ['Gk', 'EffTot%Gk']] = np.nan
         # export + gui
-        self.df_data['Zawodnik'] = self.df_data.index
+        self.df_data['Player'] = self.df_data.index
         self.df_data_raw = self.df_data
-        self.df_data = self.df_data[['Zawodnik', 'ANu', 'PAt', 'FAt', 'PSh', 'Err', 'Go', 'Gk', 'Pen', 'PShCr', 'EffTot%', 'EffTot%Gk']]
+        self.df_data = self.df_data[['Player', 'ANu', 'PAt', 'FAt', 'PSh', 'Err', 'Go', 'Gk', 'Pen', 'PShCr', 'EffTot%', 'EffTot%Gk']]
 
 
 if __name__ == '__main__':
